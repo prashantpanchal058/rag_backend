@@ -68,18 +68,22 @@ def vector_search( user_query, document_ids, project_settings):
 
 
 def keyword_search(query, document_ids, settings):
-    keyword_search_result_chunks = supabase.rpc(
-        "keyword_search_document_chunks",
-        {
-            "query_text": query,
-            "filter_document_ids": document_ids,
-            "chunks_per_search": settings["chunks_per_search"],
-        },
-    ).execute()
+    document_ids = [int(doc_id) for doc_id in document_ids]
+    try:
+        response = supabase.rpc(
+            "keyword_search_document_chunks",
+            {
+                "query_text": query,
+                "filter_document_ids": document_ids,
+                "chunks_per_search": settings["chunks_per_search"],
+            },
+        ).execute()
 
-    return (
-        keyword_search_result_chunks.data if keyword_search_result_chunks.data else []
-    )
+        return response.data if response.data else []
+
+    except Exception as e:
+        print(f"❌ keyword_search FAILED: {type(e).__name__}: {str(e)}")  # Exact error
+        raise  # Re-raise so it's not silently swallowed
 
 
 def hybrid_search(query: str, document_ids: List[str], settings: dict) -> List[Dict]:
@@ -90,27 +94,3 @@ def hybrid_search(query: str, document_ids: List[str], settings: dict) -> List[D
     return rrf_rank_and_fuse([vector_results, keyword_results], [settings["vector_weight"], settings["keyword_weight"]])
 
 
-def multi_query_vector_search(user_query, document_ids, project_settings):
-    """Execute multi-query vector search using query variations"""
-    queries = generate_query_variations(user_query, project_settings["number_of_queries"])
-
-    all_chunks = []
-    for index, query in enumerate(queries):
-        chunks = vector_search(query, document_ids, project_settings)
-        all_chunks.append(chunks)
-
-    final_chunks = rrf_rank_and_fuse(all_chunks)
-    return final_chunks
-
-
-def multi_query_hybrid_search(user_query, document_ids, project_settings):
-    """Execute multi-query hybrid search using query variations"""
-    queries = generate_query_variations(user_query, project_settings["number_of_queries"])
-
-    all_chunks = []
-    for index, query in enumerate(queries):
-        chunks = hybrid_search(query, document_ids, project_settings)
-        all_chunks.append(chunks)
-
-    final_chunks = rrf_rank_and_fuse(all_chunks)
-    return final_chunks

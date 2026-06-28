@@ -1,4 +1,4 @@
-version: "3.8"
+# version: "3.8"
 
 services:
   fastapi:
@@ -23,7 +23,7 @@ services:
         condition: service_healthy
     volumes:
       - .:/app
-    command: celery -A src.services.celery_app.celery worker --loglevel=info -Q celery  # ← same queue
+    command: celery -A src.services.celery_app.celery worker --loglevel=info --pool=prefork --concurrency=4  # ← same queue
 
   redis:
     image: redis:alpine

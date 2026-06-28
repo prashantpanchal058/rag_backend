@@ -8,7 +8,6 @@ from unstructured.partition.md import partition_md
 from src.services.llm import gemini
 from langchain_core.messages import HumanMessage
 
-from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -201,10 +200,6 @@ def create_ai_summary(text, tables_html, images_base64):
             )
             
         message = HumanMessage(content=message_content)
-        # response = ChatGoogleGenerativeAI(
-        #         model="models/gemini-2.5-flash",
-        #         temperature=0.3
-        # ).invoke([message])
         response = gemini["chat_llm"].invoke([message])
 
         return response.content

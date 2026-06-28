@@ -20,7 +20,6 @@ def process_document(document_id: str):
     * Update the project document record with the processing_status and processing_details as needed.
     *   - `processing_details` : What type of elements or metadata did we retrieve from the document to show in the UI.
     """
-
     try:
         update_status_in_database(document_id, ProcessingStatus.PROCESSING)
 
@@ -65,7 +64,7 @@ def update_status_in_database(
         document_result = (
             supabase.table("project_documents")
             .select("processing_details")
-            .eq("id", document_id)
+            .eq("id", int(document_id))
             .execute()
         )
         if not document_result.data:
@@ -93,7 +92,7 @@ def update_status_in_database(
                     "processing_details": current_details,
                 }
             )
-            .eq("id", document_id)
+            .eq("id", int(document_id))
             .execute()
         )
 

@@ -4,6 +4,7 @@ from src.route.projectRoutes import router as project_router
 from src.route.projectFilesRoutes import router as projectFilesRoutes
 from src.route.chatRoutes import router as chat_router
 from src.route.messagesRoutes import router as message_router
+from src.route.settingsRoutes import router as settings_router
 
 app = FastAPI()
 
@@ -20,3 +21,4 @@ app.include_router(project_router, prefix="/api/projects")
 app.include_router(chat_router, prefix="/api/chats")
 app.include_router(projectFilesRoutes, prefix="/api/projects")
 app.include_router(message_router, prefix="/api/projects/message")
+app.include_router(settings_router, prefix="/api/projects/settings")

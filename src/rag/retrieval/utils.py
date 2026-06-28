@@ -261,17 +261,23 @@ def prepare_prompt_and_invoke_llm(
 
 def rrf_rank_and_fuse(search_results_list, weights=None, k=60):
     """RRF (Reciprocal Rank Fusion) ranking"""
-    if not search_results_list or not any(search_results_list):
+    
+    non_empty = [(i, r) for i, r in enumerate(search_results_list) if r]
+    
+    if not non_empty:
         return []
 
     if weights is None:
-        weights = [1.0 / len(search_results_list)] * len(search_results_list)
+        normalized_weights = [1.0 / len(non_empty)] * len(non_empty)
+    else:
+        selected_weights = [float(weights[i]) for i, _ in non_empty]  # ✅ cast string to float
+        total = sum(selected_weights)
+        normalized_weights = [w / total for w in selected_weights]
 
     chunk_scores = {}
     all_chunks = {}
-
-    for search_idx, results in enumerate(search_results_list):
-        weight = weights[search_idx]
+    for list_idx, (original_idx, results) in enumerate(non_empty):
+        weight = normalized_weights[list_idx]
 
         for rank, chunk in enumerate(results):
             chunk_id = chunk.get("id")
@@ -289,11 +295,13 @@ def rrf_rank_and_fuse(search_results_list, weights=None, k=60):
     sorted_chunk_ids = sorted(
         chunk_scores.keys(), key=lambda cid: chunk_scores[cid], reverse=True
     )
-    return [all_chunks[chunk_id] for chunk_id in sorted_chunk_ids]
+    
+    return [all_chunks[chunk_id] for chunk_id in sorted_chunk_ids]  # ✅ removed stray `and`
 
 
 def generate_query_variations(original_query: str, num_queries: int = 3) -> List[str]:
     """Generate query variations using LLM"""
+    print("generating multi")
     system_prompt = f"""Generate {num_queries-1} alternative ways to phrase this question for document search. Use different keywords and synonyms while maintaining the same intent. Return exactly {num_queries-1} variations."""
 
     try:

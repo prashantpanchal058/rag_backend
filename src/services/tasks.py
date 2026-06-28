@@ -8,7 +8,6 @@ def perform_rag_ingestion_task(self, document_id: str):
         # Update task state to show progress
         self.update_state(state="PROGRESS", meta={"status": "Processing document..."})
         result = process_document(document_id)
-        
         return {
             "status": "success",
             "document_id": document_id,

@@ -3,6 +3,14 @@ from src.services.supabase_client import supabase
 from src.services.clerkAuth import get_current_user_clerk_id
 from src.models.index import ProjectSettings
 
+from typing import Literal
+from pydantic import BaseModel
+
+class StrategyUpdate(BaseModel):
+    rag_strategy: Literal["basic", "hybrid", "multi-query-vector", "multi-query-hybrid"]
+
+
+
 router = APIRouter()
 
 @router.get("/{project_id}/settings")
@@ -120,4 +128,57 @@ async def update_project_settings(
         raise HTTPException(
             status_code=500,
             detail=f"Error updating project settings: {str(e)}"
+        )
+
+
+
+@router.put("/{project_id}/strategy")
+async def update_project_strategy(
+    project_id: str,
+    body: StrategyUpdate,
+    current_user_clerk_id: str = Depends(get_current_user_clerk_id),
+):
+    try:
+        # Step 1: Verify project ownership
+        project_check = (
+            supabase.table("projects")
+            .select("id")
+            .eq("id", project_id)
+            .eq("user_id", current_user_clerk_id)
+            .limit(1)
+            .execute()
+        )
+
+        if not project_check.data:
+            raise HTTPException(
+                status_code=404,
+                detail="Project not found or you don't have permission"
+            )
+
+        # Step 2: Update only the strategy field
+        response = (
+            supabase.table("project_settings")
+            .update({"rag_strategy": body.rag_strategy})
+            .eq("project_id", project_id)
+            .execute()
+        )
+
+        if not response.data:
+            raise HTTPException(
+                status_code=404,
+                detail="Project settings not found"
+            )
+
+        return {
+            "message": "Strategy updated successfully",
+            "data": {"rag_strategy": body.rag_strategy}
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error updating strategy: {str(e)}"
         )

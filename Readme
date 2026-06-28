@@ -1,0 +1,13 @@
+we have to start three servers for running locally
+1. celery worker
+2. redis
+3. baceknd
+
+1. python -m celery -A src.services.celery_app worker -l info --pool=solo
+
+D:\rag-system\backend>python -m celery -A src.services.celery_app worker -l info --pool=prefork --concurrency=4
+
+2. docker start redis  #if already have container in docker
+#docker run -d -p 6379:6379 --name redis redis:alpine  # if have not available container already
+
+#  python -m uvicorn src.main:app --reload
