@@ -1,15 +1,10 @@
-# version: "3.8"
-
 services:
   fastapi:
     build: .
     ports:
       - "8000:10000"
     environment:
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      redis:
-        condition: service_healthy
+      - REDIS_URL=${REDIS_URL}
     volumes:
       - .:/app
     command: uvicorn src.main:app --host 0.0.0.0 --port 10000 --reload
@@ -17,20 +12,7 @@ services:
   celery-worker:
     build: .
     environment:
-      - REDIS_URL=redis://redis:6379/0
-    depends_on:
-      redis:
-        condition: service_healthy
+      - REDIS_URL=${REDIS_URL}
     volumes:
       - .:/app
-    command: celery -A src.services.celery_app.celery worker --loglevel=info --pool=prefork --concurrency=4  # ← same queue
-
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+    command: celery -A src.services.celery_app.celery worker --loglevel=info --pool=prefork --concurrency=4

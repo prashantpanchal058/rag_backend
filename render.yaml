@@ -2,15 +2,12 @@ services:
   # 1. FastAPI Web Service
   - type: web
     name: fastapi-app
-    runtime: python
+    runtime: docker
     dockerfilePath: ./Dockerfile
+    healthCheckPath: /docs
     envVars:
       - key: REDIS_URL
-        fromService:
-          name: my-redis
-          type: redis
-          property: connectionString
-    healthCheckPath: /docs
+        sync: false
 
   # 2. Celery Worker (Background Service)
   - type: worker
@@ -20,13 +17,4 @@ services:
     dockerCommand: celery -A src.services.celery_app.celery worker --loglevel=info
     envVars:
       - key: REDIS_URL
-        fromService:
-          name: my-redis
-          type: redis
-          property: connectionString
-
-  # 3. Redis (Managed by Render)
-  - type: redis
-    name: my-redis
-    plan: free       # or "starter" for production
-    ipAllowList: []  # only internal access
+        sync: false
