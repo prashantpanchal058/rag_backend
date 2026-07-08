@@ -1,5 +1,5 @@
 from unstructured.partition.html import partition_html
-from unstructured.partition.pdf import partition_pdf
+# from unstructured.partition.pdf import partition_pdf
 from unstructured.partition.docx import partition_docx
 from unstructured.partition.pptx import partition_pptx
 from unstructured.partition.text import partition_text
@@ -22,13 +22,15 @@ def partition_document(temp_file: str, file_type: str, source_type: str = "file"
 
     kind = (file_type or "").lower()
     dispatch = {
-        "pdf": lambda: partition_pdf(
-            filename=temp_file,
-            strategy="hi_res",  # Most accurate (but slower) processing method of extraction.
-            infer_table_structure=True,  # Keep tables as structured HTML, not jumbled text.
-            extract_image_block_types=["Image"],  # Grab images found in pdf.
-            extract_image_block_to_payload=True,  # Store images as base64 strings in the payload.
-        ),
+        # "pdf": lambda: partition_pdf(
+        #     filename=temp_file,
+        #     # strategy="hi_res",  # Most accurate (but slower) processing method of extraction.
+        #     strategy="fast",  # Most accurate (but slower) processing method of extraction.
+        #     # infer_table_structure=True,  # Keep tables as structured HTML, not jumbled text.
+        #     # extract_image_block_types=["Image"],  # Grab images found in pdf.
+        #     # extract_image_block_to_payload=True,  # Store images as base64 strings in the payload.
+        # ),
+        "pdf":"",
         "docx": lambda: partition_docx(
             filename=temp_file,
             # infer_table_structure=True,
