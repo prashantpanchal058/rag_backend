@@ -11,7 +11,7 @@ app = FastAPI()
 # ✅ MUST be before routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://rag-frontend-kappa.vercel.app/","https://rag-frontend-2bsxk26gi-prasahnts-projects.vercel.app/"],
+    allow_origins=["https://rag-frontend-kappa.vercel.app","https://rag-frontend-2bsxk26gi-prasahnts-projects.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
