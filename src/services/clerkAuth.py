@@ -12,7 +12,7 @@ def get_current_user_clerk_id(request: Request):
         request_state = clerk_sdk.authenticate_request(
             request,
             options=AuthenticateRequestOptions(
-                authorized_parties=["http://localhost:3000"]
+                authorized_parties=["http://localhost:3000","https://rag-frontend-kappa.vercel.app","https://rag-frontend-2bsxk26gi-prasahnts-projects.vercel.app"]
             ),
         )
 
